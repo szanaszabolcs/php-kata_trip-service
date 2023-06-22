@@ -25,14 +25,14 @@ class TripServiceTest extends TestCase
         $this->expectException(UserNotLoggedInException::class);
 
         $user = $this->createMock(User::class);
-        $this->mockUserSession(null);
+        $this->mockUserSession();
 
         $this->tripService->getTripsByUser($user);
     }
 
     public function test_get_trips_by_user_when_user_is_not_friend(): void
     {
-        $user = $this->mockUser([]);
+        $user = $this->mockUser();
         $loggedInUser = $this->createMock(User::class);
         $this->mockUserSession($loggedInUser);
 
@@ -47,16 +47,17 @@ class TripServiceTest extends TestCase
         $this->mockUserSession($loggedInUser);
         $user = $this->mockUser([$loggedInUser]);
 
+        $expectedTrips = ['trip-1', 'trip-2'];
         $tripDaoClass = TripDAO::class;
         $tripDao = Mockery::mock("alias:$tripDaoClass");
-        $tripDao->shouldReceive('findTripsByUser')->andReturn(['trip-1', 'trip-2']);
+        $tripDao->shouldReceive('findTripsByUser')->andReturn($expectedTrips);
 
         $tripList = $this->tripService->getTripsByUser($user);
 
-        $this->assertEquals(['trip-1', 'trip-2'], $tripList);
+        $this->assertEquals($expectedTrips, $tripList);
     }
 
-    private function mockUserSession(?User $getLoggedUser): void
+    private function mockUserSession(?User $getLoggedUser = null): void
     {
         $userSession = $this->getMockBuilder(UserSession::class)->getMock();
         $userSession->expects($this->once())
@@ -67,7 +68,7 @@ class TripServiceTest extends TestCase
         $userSessionReflection->setStaticPropertyValue('userSession', $userSession);
     }
 
-    private function mockUser(?array $getFriends): User
+    private function mockUser(array $getFriends = []): User
     {
         $user = $this->getMockBuilder(User::class)
             ->disableOriginalConstructor()
