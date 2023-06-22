@@ -3,7 +3,8 @@
     "description": "Kata for a legacy code hands-on session. The objective is to write tests and refactor the given legacy code.",
     "require-dev": {
         "php": "^8.1",
-        "phpunit/phpunit": "^10.0"
+        "phpunit/phpunit": "^10.0",
+        "mockery/mockery": "^1.6"
     },
     "scripts": {
         "test": "phpunit"

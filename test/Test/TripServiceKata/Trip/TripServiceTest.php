@@ -2,9 +2,11 @@
 
 namespace Test\TripServiceKata\Trip;
 
+use Mockery;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use TripServiceKata\Exception\UserNotLoggedInException;
+use TripServiceKata\Trip\TripDAO;
 use TripServiceKata\Trip\TripService;
 use TripServiceKata\User\User;
 use TripServiceKata\User\UserSession;
@@ -37,6 +39,21 @@ class TripServiceTest extends TestCase
         $tripList = $this->tripService->getTripsByUser($user);
 
         $this->assertEquals([], $tripList);
+    }
+
+    public function test_get_trips_by_user_when_user_is_friend(): void
+    {
+        $loggedInUser = $this->createMock(User::class);
+        $this->mockUserSession($loggedInUser);
+        $user = $this->mockUser([$loggedInUser]);
+
+        $tripDaoClass = TripDAO::class;
+        $tripDao = Mockery::mock("alias:$tripDaoClass");
+        $tripDao->shouldReceive('findTripsByUser')->andReturn(['trip-1', 'trip-2']);
+
+        $tripList = $this->tripService->getTripsByUser($user);
+
+        $this->assertEquals(['trip-1', 'trip-2'], $tripList);
     }
 
     private function mockUserSession(?User $getLoggedUser): void
